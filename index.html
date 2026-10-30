@@ -316,4 +316,9 @@
   N.leave=leave;
   show('home');
   return N;
-})();win.requestAnimationFrame(function loop(a){ if(closed)return; if(cnv.clientWidth!==lcw||cnv.clientHeight!==lch){lcw=cnv.clientWidth;lch=cnv.clientHeight;fit();} var raw=(a-lastT)/1e3||.016;lastT=a;fps=fps*.92+(1/M.max(raw,.001))*.08;var rc=M.min(raw,.2),n=M.min(4,M.max(1,M.ceil(raw/.05)));dtc=rc;NET.pre(rc);for(var si=0;si<n;si++)update(M.min(.05,raw/n));NET.post(rc);render();win.requestAnimationFrame(loop);});box.focus(); } main(window); })();</script></body></html>
+})();function frame(a,hid){ if(closed)return; if(!hid&&(cnv.clientWidth!==lcw||cnv.clientHeight!==lch)){lcw=cnv.clientWidth;lch=cnv.clientHeight;fit();} var raw=(a-lastT)/1e3;if(!(raw>0))return;lastT=a;fps=fps*.92+(1/M.max(raw,.001))*.08;var rc=M.min(raw,.2),n=M.min(4,M.max(1,M.ceil(raw/.05)));dtc=rc;NET.pre(rc);for(var si=0;si<n;si++)update(M.min(.05,raw/n));NET.post(rc);if(!hid)render();}
+win.requestAnimationFrame(function loop(a){ if(closed)return; if(!doc.hidden)frame(a,0); win.requestAnimationFrame(loop);});
+/* browsers pause animation frames in background tabs; keep simulating + networking from a worker timer (not throttled) so a hidden tab doesn't freeze everyone */
+(function(){var wk=null,iv=0;function tick(){if(closed){if(wk)wk.terminate();if(iv)win.clearInterval(iv);return}if(doc.hidden)frame(win.performance.now(),1)}
+try{wk=new win.Worker(win.URL.createObjectURL(new win.Blob(['setInterval(function(){postMessage(0)},16)'],{type:'text/javascript'})));wk.onmessage=tick}catch(e){wk=null;iv=win.setInterval(tick,50)}})();
+box.focus(); } main(window); })();</script></body></html>
